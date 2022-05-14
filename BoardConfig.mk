@@ -31,10 +31,10 @@ TARGET_OTA_ASSERT_DEVICE := gtexswifi
 TARGET_KERNEL_CONFIG := gtexswifi-dt_defconfig
 
 ### SYSTEM PROPS
-TARGET_SYSTEM_PROP += vendor/samsung/gtexswifi/system.prop
+TARGET_SYSTEM_PROP += $(DEVICE_PATH)/system.prop
 
 ### VENDOR SECURITY PATCH DATE
 VENDOR_SECURITY_PATCH := 2020-11-01
 
 ### VENDOR PROPS
-TARGET_VENDOR_PROP += vendor/samsung/gtexswifi/gtexswifi-vendor.mk
+TARGET_VENDOR_PROP += $(DEVICE_PATH)/vendor.prop
