@@ -33,9 +33,9 @@ PRODUCT_SHIPPING_API_LEVEL := 29
 PRODUCT_GMS_CLIENTID_BASE := android-samsung
 
 PRODUCT_BUILD_PROP_OVERRIDES += \
-    PRODUCT_NAME=gta4xlwifixx \
-    PRODUCT_DEVICE=gta4xlwifi \
-    PRIVATE_BUILD_DESC="gta4xlwifixx-user 10 QP1A.190711.020 $(PRODUCT_PDA_VERSION) release-keys"
+    PRODUCT_NAME=gtexswifixx \
+    PRODUCT_DEVICE=gtexswifi \
+    PRIVATE_BUILD_DESC="gtexswifixx-user 10 QP1A.190711.020 $(PRODUCT_PDA_VERSION) release-keys"
 
 BUILD_FINGERPRINT := BUILD_FINGERPRINT=samsung/gtexswifixx/gtexswifi:5.1.1/LMY47V/T280XXU0AQA4/$(PRODUCT_PDA_VERSION):user/release-keys
 
