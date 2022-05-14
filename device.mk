@@ -3,7 +3,7 @@
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
 # Inherit from vendor tree
-$(call inherit-product-if-exists, device/samsung/gtexswifi/prebuilts/gtexswifi-vendor.mk)
+$(call inherit-product-if-exists, device/samsung/gtexswifi/prebuilt/gtexswifi-vendor.mk)
 
 # Boot animation
 TARGET_SCREEN_WIDTH := 800
