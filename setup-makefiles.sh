@@ -42,7 +42,7 @@ setup_vendor "$DEVICE" "$VENDOR" "$LINEAGE_ROOT"
 write_headers
 
 write_makefiles "$MY_DIR"/proprietary-files.txt true
-write_makefiles "$MY_DIR"/proprietary-files-vendor.txt true
+write_makefiles "$MY_DIR"/vendor/samsung/gtexswifi/gtexswifi-vendor.mk true
 
 # Finish
 write_footers
