@@ -20,4 +20,3 @@ DEVICE_PACKAGE_OVERLAYS += \
 PRODUCT_ENFORCE_RRO_TARGETS := \
     framework-res
 
-include $(PLATFORM_PATH)/platform/*.mk
