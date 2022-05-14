@@ -37,4 +37,4 @@ TARGET_SYSTEM_PROP += vendor/samsung/gtexswifi/system.prop
 VENDOR_SECURITY_PATCH := 2020-11-01
 
 ### VENDOR PROPS
-TARGET_VENDOR_PROP += device/samsung/gtexswifi/gtexswifi-vendor.mk
+TARGET_VENDOR_PROP += vendor/samsung/gtexswifi/gtexswifi-vendor.mk
