@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-include device/samsung/gta4xl-common/BoardConfigPlatform.mk
-include vendor/samsung/gta4xlwifi/BoardConfigVendor.mk
+include device/samsung/gtexswifi/BoardConfigPlatform.mk
+include vendor/samsung/gtexswifi/BoardConfigVendor.mk
 
 DEVICE_PATH := device/samsung/gtexswifi
 
