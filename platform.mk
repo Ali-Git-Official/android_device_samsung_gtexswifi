@@ -1,4 +1,4 @@
-PLATFORM_PATH := device/samsung/gta4xl-common
+PLATFORM_PATH := device/samsung/gtexswifi
 
 # Device uses high-density artwork where available
 PRODUCT_AAPT_CONFIG := normal
