@@ -1,0 +1,126 @@
+# sprd file contexts
+
+
+/dev/spipe_w4           u:object_r:audio_device:s0
+/dev/spipe_w6           u:object_r:audio_device:s0
+/dev/spipe_w14          u:object_r:audio_device:s0
+/dev/sprd_gsp           u:object_r:graphics_device:s0
+/dev/lis3dh_acc         u:object_r:sensors_device:s0
+/dev/ltr_558als         u:object_r:sensors_device:s0
+/dev/sprd_sensor        u:object_r:sensors_device:s0
+/dev/sprd_rotation      u:object_r:sensors_device:s0
+/dev/sprd_isp           u:object_r:camera_device:s0
+/dev/sprd_scale         u:object_r:camera_device:s0
+/dev/sprd_image         u:object_r:camera_device:s0
+/dev/ttyV1              u:object_r:gps_device:s0
+/dev/sprd_vsp           u:object_r:video_device:s0
+/dev/sprd_coda7l        u:object_r:video_device:s0
+/dev/sprd_vpp           u:object_r:video_device:s0
+/dev/sprd_jpg           u:object_r:graphics_device:s0
+/dev/stty_w0            u:object_r:tty_device:s0
+/dev/stty_w[0-9]*       u:object_r:radio_device:s0
+/dev/ttyGS[0-9]*	      u:object_r:gadget_serial_device:s0
+/dev/vser               u:object_r:serial_device:s0
+/dev/sdiag_lte          u:object_r:slog_device:s0
+/dev/slog_lte           u:object_r:slog_device:s0
+/dev/slog_wcn           u:object_r:slog_device:s0
+/dev/download           u:object_r:wcn_device:s0
+
+# for keystore
+/dev/trusty-ipc-dev0          u:object_r:teetz_device:s0
+
+/dev/sttybt0            u:object_r:hci_attach_dev:s0
+
+/dev/pipe(/.*)?          u:object_r:audio_device:s0
+/dev/power_ctl           u:object_r:power_ctl_device:s0
+
+/dev/stty_w12            u:object_r:tty_device:s0
+/dev/stty_lte12          u:object_r:tty_device:s0
+/dev/stty_td12           u:object_r:tty_device:s0
+/dev/stty_lte31          u:object_r:tty_device:s0
+/dev/stty_lte[0-9]       u:object_r:radio_device:s0
+/dev/stty_lte10          u:object_r:radio_device:s0
+/dev/stty_lte11          u:object_r:tty_device:s0
+/dev/ttyS3               u:object_r:tty_device:s0
+/dev/Trout_FM            u:object_r:audio_device:s0
+/sys/class/rfkill/rfkill[0-9]*/state -- u:object_r:sysfs_bluetooth_writable:s0
+/sys/class/rfkill/rfkill[0-9]*/type -- u:object_r:sysfs_bluetooth_writable:s0
+/dev/rfkill		           u:object_r:wpa_device:s0
+
+/dev/block/mmcblk[0-9].* u:object_r:emmcblk_device:s0
+/dev/block/zram[0-9]		 u:object_r:ram_device:s0
+
+/dev/block/mmcblk0p22    u:object_r:frp_block_device:s0
+/dev/block/mmcblk0p17    u:object_r:efsblk_device:s0
+/dev/block/mmcblk0       u:object_r:mmc_block_device:s0
+/dev/block/mmcblk0p25    u:object_r:systemblk_device:s0
+/dev/block/mmcblk0p27    u:object_r:userdatablk_device:s0
+/dev/block/vnswap0       u:object_r:swap_device:s0
+
+# gtexslte hardware
+
+/dev/rtc[0-9]*	u:object_r:clock_device:s0
+/dev/mali	      u:object_r:gpu_device:s0
+/dev/mali[0-9]	u:object_r:gpu_device:s0
+/dev/spipe_lte1         u:object_r:spipe_device:s0
+/dev/spipe_lte4         u:object_r:audio_device:s0
+/dev/spipe_lte5         u:object_r:spipe_device:s0
+/dev/spipe_lte6         u:object_r:audio_device:s0
+/dev/spipe_lte8		      u:object_r:refnotify_device:s0
+/dev/stty_lte21	        u:object_r:radio_device:s0
+/dev/epl2182_pls        u:object_r:sensors_device:s0
+/dev/spipe_w[0-9]        u:object_r:spipe_device:s0
+/dev/spipe_wcn[0-9]*     u:object_r:spipe_device:s0
+/dev/spipe_lte2          u:object_r:spipe_device:s0
+/dev/spipe_lte9          u:object_r:spipe_device:s0
+/dev/spipe_lte10          u:object_r:spipe_device:s0
+/dev/sprd_bm             u:object_r:bm_device:s0
+/dev/usb_mtp_gadget       u:object_r:mtp_device:s0
+/dev/usb-ffs              u:object_r:usb_device:s0
+
+/data/misc/radio(/.*)?	u:object_r:radio_data_file:s0
+/sys/class/android_usb/android0(/.*)?  u:object_r:sysfs_ss_writable:s0
+
+/sbin/sswap           u:object_r:sswap_exec:s0
+
+/system/bin/atd  u:object_r:agps_exec:s0
+/system/bin/at_distributor  u:object_r:at_distributor_exec:s0
+/system/bin/bootchecker  u:object_r:bootchecker_exec:s0
+/system/bin/drsd    u:object_r:drsd_exec:s0
+/system/bin/download    u:object_r:download_exec:s0
+/system/bin/engpc       u:object_r:engpc_exec:s0
+/system/bin/modemd      u:object_r:rild_exec:s0
+/system/bin/modem_control      u:object_r:rild_exec:s0
+/system/bin/cp_diskserver u:object_r:cp_diskserver_exec:s0
+/system/bin/refnotify   u:object_r:refnotify_exec:s0
+/system/bin/mfgloader   u:object_r:mfgloader_exec:s0
+/system/bin/batterysrv   u:object_r:batterysrv_exec:s0
+/system/bin/npsmobex     u:object_r:npsmobex_exec:s0
+/system/bin/wlandutservice u:object_r:wlandutservice_exec:s0
+/system/bin/slogmodem   u:object_r:slogmodem_exec:s0
+/system/bin/macloader   u:object_r:macloader_exec:s0
+/system/bin/ext_symlink.sh u:object_r:smd_symlink_exec:s0
+/system/bin/ext_data.sh  u:object_r:data_on_off_exec:s0
+/system/bin/prepare_param.sh  u:object_r:prepare_param_exec:s0
+/system/bin/ddexe   u:object_r:ddexe_exec:s0
+/system/bin/connfwexe   u:object_r:connfwexe_exec:s0
+/system/bin/wcnd  u:object_r:wcnd_exec:s0
+/system/bin/smdexe  u:object_r:smdexe_exec:s0
+/system/bin/charon  u:object_r:charon_exec:s0
+/system/bin/scs     u:object_r:scs_exec:s0
+
+
+#data
+/data/log(/.*)?	u:object_r:dumplog_data_file:s0
+/data/local/media(/.*)?     u:object_r:media_data_file:s0
+
+#rild related files
+/data/.battery_nv             u:object_r:batterysrv_data_file:s0
+/data/.wifiver.info           u:object_r:radio_data_file:s0
+/data/data/data_usage_rx      u:object_r:radio_data_file:s0
+/data/data/data_usage_tx      u:object_r:radio_data_file:s0
+
+#engpc related files
+/data/file_lock.test          u:object_r:engpc_data_file:s0
+
+/mnt/shell/emulated/([1-9])?[0-9](/.*)?  u:object_r:media_rw_data_file:s0

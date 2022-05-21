@@ -1,0 +1,19 @@
+# cp_diskserver
+type batterysrv, domain;
+type batterysrv_exec, exec_type, file_type;
+
+init_daemon_domain(batterysrv)
+
+allow batterysrv self:netlink_kobject_uevent_socket { bind read setopt create };
+allow batterysrv system_data_file:dir { create add_name write };
+allow batterysrv system_data_file:file open;
+allow batterysrv prod_file:dir { read write search };
+allow batterysrv prod_file:file { open read write };
+allow batterysrv log_device:dir { write search };
+allow batterysrv log_device:chr_file { write open };
+allow batterysrv batterysrv_data_file:file { read open };
+allow batterysrv sysfs:file { open read };
+allow batterysrv proc:file { getattr open read };
+
+type_transition batterysrv system_data_file:file batterysrv_data_file;
+allow batterysrv batterysrv_data_file:file create_file_perms;

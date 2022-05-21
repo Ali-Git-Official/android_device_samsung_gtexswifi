@@ -1,0 +1,1 @@
+allow system_app kernel:system module_request;
