@@ -17,7 +17,7 @@
 
 set -e
 
-DEVICE=gta4xlwifi
+DEVICE=gtexswifi
 VENDOR=samsung
 
 # Load extract_utils and do some sanity checks
