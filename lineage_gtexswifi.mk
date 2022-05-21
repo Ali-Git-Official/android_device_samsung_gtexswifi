@@ -8,7 +8,7 @@ $(call inherit-product, device/samsung/gtexswifi/device.mk)
 
 # Boot animation
 TARGET_SCREEN_HEIGHT := 1280
-TARGET_SCREEN_WIDTH := 720
+TARGET_SCREEN_WIDTH := 800
 
 # Inherit some common stuff.
 $(call inherit-product, vendor/lineage/config/common_full_tablet_wifionly.mk)
