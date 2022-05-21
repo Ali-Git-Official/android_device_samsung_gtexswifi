@@ -1,2 +1,0 @@
-allow untrusted_app cache_file:fifo_file getattr;
-allow untrusted_app media_prop:file read;

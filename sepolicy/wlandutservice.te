@@ -1,5 +1,0 @@
-# cp_diskserver
-type wlandutservice, domain;
-type wlandutservice_exec, exec_type, file_type;
-
-init_daemon_domain(wlandutservice)

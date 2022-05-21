@@ -1,1 +1,0 @@
-allow mediaextractor media_prop:file { getattr open read };

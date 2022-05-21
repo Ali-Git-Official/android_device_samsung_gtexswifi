@@ -1,2 +1,0 @@
-allow adbd self:capability dac_override;
-allow adbd usb_device:dir search;
