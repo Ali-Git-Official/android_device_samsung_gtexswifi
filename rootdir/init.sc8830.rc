@@ -1,0 +1,468 @@
+import /init.board.rc
+import /init.sc8830.usb.rc
+
+on early-init
+    mount debugfs debugfs /sys/kernel/debug
+
+    # Allow to access debugfs for system:system
+    chmod 0755 /sys/kernel/debug
+    chown system system /sys/kernel/debug
+
+    # set core dump resource limit
+    setrlimit 4 2147483647 2147483647
+
+on init
+    # Support Preload install apks
+    mkdir /preload 0771 system system
+
+    mkdir /productinfo 0771 system system
+
+    # Support legacy paths
+    symlink /sdcard /mnt/sdcard
+    symlink /sdcard /storage/sdcard0
+
+    #Google FRP
+    symlink /dev/block/platform/sdio_emmc/by-name/PERSISTENT /dev/block/persistent
+
+    chown system system /sys/class/power_supply/battery/hw_switch_point
+    chown system system /sys/class/power_supply/battery/save_capacity
+
+    # for tsp command
+    chown system system /sys/class/sec/tsp/cmd
+
+    mkdir /efs 0771 radio system
+    mkdir /efs/imei 0775 radio system
+
+    # SEC_SELINUX
+    # for audit message
+    chown system system /proc/avc_msg
+    chmod 0660 /proc/avc_msg
+    restorecon /dev/pipes
+
+## Samsung ODE >>>
+    # Create private mountpoint so we can MS_MOVE from staging
+    mount tmpfs tmpfs /mnt/secure mode=0700,uid=0,gid=0
+## Samsung ODE <<<
+
+    # Directory for staging bindmounts
+    mkdir /mnt/secure/staging 0700 root root
+    restorecon_recursive /mnt/secure/staging
+
+    # Directory-target for where the secure container
+    # imagefile directory will be bind-mounted
+    mkdir /mnt/secure/asec  0700 root root
+    restorecon_recursive /mnt/secure/asec
+
+    # Secure container public mount points.
+    mkdir /mnt/asec  0700 root system
+    mount tmpfs tmpfs /mnt/asec mode=0755,gid=1000
+    restorecon_recursive /mnt/asec
+
+    # Filesystem image public mount points.
+    mkdir /mnt/obb 0700 root system
+    mount tmpfs tmpfs /mnt/obb mode=0755,gid=1000
+    restorecon_recursive /mnt/obb
+
+on fs
+    mount_all /fstab.sc8830
+    mount pstore pstore /sys/fs/pstore
+    setprop ro.crypto.fuse_sdcard true
+	symlink /system/res /res
+	symlink /system/bin /bin
+
+#Allow others to read fb devices
+    chmod 660 /dev/graphics/fb0
+    chmod 660 /dev/fb0
+
+#permissions for debug
+    chown system system /sys/power/restart_cpc
+    chmod 0220 /sys/power/restart_cpc
+
+#KEY
+    chown system system /sys/class/sec/sec_key/reset_enabled
+
+
+# Support Preload install apks
+  mount ext4 /dev/block/platform/sdio_emmc/by-name/HIDDEN /preload nosuid nodev ro barrier=1
+  setprop storage.preload.complete 1
+
+on post-fs
+    chown system system /productinfo
+    chmod 0771 /productinfo
+
+    chown system system /proc/uid_cputime/show_uid_stat
+    chmod 0440 /proc/uid_cputime/show_uid_stat
+    chown system system /proc/uid_cputime/remove_uid_range
+    chmod 0660 /proc/uid_cputime/remove_uid_range
+
+    ## Samsung ODE >>>
+    mount tmpfs tmpfs /mnt/secure private rec
+    mount tmpfs tmpfs /mnt/secure/asec shared rec
+    ## Samsung ODE <<<
+
+    # Allow writing to the kernel trace log.
+    chmod 0222 /sys/kernel/debug/tracing/trace_marker
+
+on late-init
+    trigger post-fs-data
+
+on post-fs-data
+    # sec_efs_file
+    mkdir /efs/sec_efs 0775 radio system
+
+    copy /system/etc/bluetooth/bt_stack.conf /data/misc/bluedroid/bt_stack.conf
+    chown bluetooth system /data/misc/bluedroid/bt_stack.conf
+    chmod 0640 /data/misc/bluedroid/bt_stack.conf
+    mkdir /data/local/media 0770 media media
+    mkdir /data/local/tmp/slogmodem 0770 system system
+    mkdir /data/anr 0771 system system
+    mkdir /data/tombstones 0771 system system
+
+    # SPRD: For saving the hprof
+    mkdir /data/misc/hprofs 0770 system system
+
+    # Set indication (checked by vold) that we have finished this action
+    setprop vold.post_fs_data_done 1
+
+    #SPRD: Add support for install apk to internal sdcard @{
+    mkdir /mnt/secure/internal-asec 0700 root root
+    # @}
+
+    mkdir /data/ssh 0750 root shell
+    mkdir /data/ssh/empty 0700 root root
+
+    mkdir /data/ssh 0750 root shell
+    mkdir /data/ssh/empty 0700 root root
+
+    # SA, System SW, SAMSUNG create log directory
+    mkdir /data/log 0775 system log
+    chown system log /data/log
+    mkdir /data/anr 0775 system system
+    chown system system /data/anr
+    chmod 0775 /data/log
+    chmod 0775 /data/anr
+    restorecon /data/log
+    restorecon /data/anr
+
+    # symlink telphony data files
+    symlink /data/user_de/0/com.android.providers.telephony/databases /data/data/com.android.providers.telephony/databases
+    symlink /data/user_de/0/com.android.providers.telephony/shared_prefs /data/data/com.android.providers.telephony/shared_prefs
+
+    # MUIC
+    chown system radio /sys/class/sec/switch/uart_en
+
+    # [ SEC_MM_DRM
+        # OMA DB directory creation
+        mkdir /data/system/databases 0775
+        chown system system /data/system/databases
+        chmod 0775 /data/system/databases
+
+        # Added drm folder to copy drm plugins
+        mkdir /system/lib/drm 0775
+        chown root root /system/lib/drm
+        chmod 0775 /system/lib/drm
+
+        restorecon -R /efs
+        restorecon -R /carrier
+        restorecon_recursive /data/misc/keystore
+        restorecon_recursive /data/property
+        restorecon_recursive /data/security
+    # ]
+
+on early-boot
+    # set RLIMIT_MEMLOCK to 64MB
+    setrlimit 8 67108864 67108864
+
+    # Support audio loopback test
+    mkdir /dev/pipe 0755 system system
+    exec -- /system/bin/mknod -m 666 /dev/pipe/mmi.audio.ctrl p
+
+    chmod 220 /proc/cpt/cp_crash
+    chmod 660 /proc/cpt/wdtirq
+    chmod 660 /proc/cpt/stop
+    chmod 660 /proc/cpt/start
+    chmod 660 /proc/cpt/modem
+    chmod 660 /proc/cpt/dsp
+
+    chown system root /proc/cpt/cp_crash
+    chown system root /proc/cpt/wdtirq
+    chown system root /proc/cpt/stop
+    chown system root /proc/cpt/start
+    chown system root /proc/cpt/modem
+    chown system root /proc/cpt/dsp
+
+    chown system root /sys/class/rtcc/rtcc_trigger
+
+    chmod 220 /proc/cpw/cp_crash
+    chmod 660 /proc/cpw/wdtirq
+    chmod 660 /proc/cpw/stop
+    chmod 660 /proc/cpw/start
+    chmod 660 /proc/cpw/modem
+    chmod 660 /proc/cpw/dsp
+
+    chown system root /proc/cpw/cp_crash
+    chown system root /proc/cpw/wdtirq
+    chown system root /proc/cpw/stop
+    chown system root /proc/cpw/start
+    chown system root /proc/cpw/modem
+    chown system root /proc/cpw/dsp
+
+    chmod 220 /proc/cpwcn/cp_crash
+    chmod 660 /proc/cpwcn/wdtirq
+    chmod 660 /proc/cpwcn/stop
+    chmod 660 /proc/cpwcn/start
+    chmod 660 /proc/cpwcn/modem
+    chmod 660 /proc/cpwcn/dsp
+
+    chown system root /proc/cpwcn/cp_crash
+    chown system root /proc/cpwcn/wdtirq
+    chown system root /proc/cpwcn/stop
+    chown system root /proc/cpwcn/start
+    chown system root /proc/cpwcn/modem
+    chown system root /proc/cpwcn/dsp
+
+    chown system root /proc/mdbg
+    chown system root /proc/mdbg/assert
+    chown system root /proc/mdbg/wdtirq
+    chown system root /proc/mdbg/loopcheck
+    chown system root /proc/mdbg/at_cmd
+
+    chmod 555 /proc/mdbg
+    chmod 760 /proc/mdbg/assert
+    chmod 760 /proc/mdbg/wdtirq
+    chmod 760 /proc/mdbg/loopcheck
+    chmod 760 /proc/mdbg/at_cmd
+
+on boot
+    chown system system /sys/module/mali/parameters/gpu_freq_cur
+    chown system system /sys/module/mali/parameters/gpu_freq_max_limit
+    chown system system /sys/module/mali/parameters/gpu_freq_min_limit
+    chown system system /sys/module/mali/parameters/gpu_freq_list
+    chown system system /sys/class/backlight/sprd_backlight/brightness
+    chown system system /sys/class/leds/red_bl/high_time
+    chown system system /sys/class/leds/red_bl/low_time
+    chown system system /sys/class/leds/red_bl/rising_time
+    chown system system /sys/class/leds/red_bl/falling_time
+    chown system system /sys/class/leds/red_bl/on_off
+
+    chown system system /sys/class/leds/green_bl/high_time
+    chown system system /sys/class/leds/green_bl/low_time
+    chown system system /sys/class/leds/green_bl/rising_time
+    chown system system /sys/class/leds/green_bl/falling_time
+    chown system system /sys/class/leds/green_bl/on_off
+
+    chown system system /sys/class/leds/blue_bl/high_time
+    chown system system /sys/class/leds/blue_bl/low_time
+    chown system system /sys/class/leds/blue_bl/rising_time
+    chown system system /sys/class/leds/blue_bl/falling_time
+    chown system system /sys/class/leds/blue_bl/on_off
+
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+    chown system system /sys/devices/system/cpu/cpufreq/sprdemand/cpu_hotplug_disable
+    chown system system /sys/devices/system/cpu/cpuhotplug/cpu_hotplug_disable
+    chown system system /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
+    chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+    chown system system /sys/devices/system/cpu/cpu0/online
+    chown system system /sys/devices/system/cpu/cpufreq/sprdemand/boostpulse
+    chown system system /sys/devices/system/cpu/cpufreq/sprdemand/boost
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_upthreshold
+    chown system system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_downdifferential
+    chown media system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
+    chown media system /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_request
+    chown system system /dev/iq_mem
+    chown system system /sys/class/graphics/fb0/dynamic_pclk
+    chown system system /sys/class/graphics/fb0/dynamic_mipi_clk
+    chown system system /dev/sprd_bm
+    chown system system /sys/class/thermal/cooling_device0/cur_ctrl_param
+    chown system system /sys/class/power_supply/battery/chg_cool_state
+    chown system system /sys/class/power_supply/battery/adjust_cur_min
+    chown system system /sys/class/power_supply/battery/adjust_cur_max
+    chown system system /sys/class/power_supply/battery/stop_charge
+    chmod 0660 /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/cpu_hotplug_disable
+    chmod 0664 /sys/devices/system/cpu/cpuhotplug/cpu_hotplug_disable
+    chmod 0664 /sys/devices/system/cpu/cpu4/cpufreq/scaling_governor
+    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
+    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+    chmod 0664 /sys/devices/system/cpu/cpu0/online
+    chmod 0664 /sys/devices/system/cpu/cpu0/cpufreq/scaling_setspeed
+    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/boostpulse
+    chmod 0660 /sys/devices/system/cpu/cpufreq/sprdemand/boost
+    chmod 0660 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_freq
+    chmod 0660 /sys/devices/platform/scxx30-dmcfreq.0/devfreq/scxx30-dmcfreq.0/ondemand/set_enable
+    chmod 0444 /dev/iq_mem
+    chmod 0660 /dev/sprd_bm
+    chmod 0660 /sys/class/graphics/fb0/dynamic_pclk
+    chmod 0660 /sys/class/graphics/fb0/dynamic_mipi_clk
+
+    # for BT MAC address
+    mkdir /efs/bluetooth 0775 radio system
+    # if already exist
+    chown radio system /efs/bluetooth
+    chmod 0775 /efs/bluetooth
+    setprop ro.bt.bdaddr_path "/efs/bluetooth/bt_addr"
+    chown bluetooth net_bt_stack ro.bt.bdaddr_path
+    chown radio net_bt_stack /efs/bluetooth/bt_addr
+    chmod 0640 /efs/bluetooth/bt_addr
+
+    # for ethernet
+    service dhcpcd_eth0 /system/bin/dhcpcd -ABKL
+    class main
+    disabled
+    oneshot
+
+    # permissions for Input booster
+    chmod 0660 /sys/class/input_booster/level
+    chown system radio /sys/class/input_booster/level
+    chmod 0660 /sys/class/input_booster/head
+    chown system radio /sys/class/input_booster/head
+    chmod 0660 /sys/class/input_booster/tail
+    chown system radio /sys/class/input_booster/tail
+
+    # permission for CHARGING
+    chown system radio /sys/class/power_supply/battery/batt_reset_soc
+    chown system radio /sys/class/power_supply/battery/batt_slate_mode
+    chown system radio /sys/class/power_supply/battery/factory_mode
+    chown system radio /sys/class/power_supply/battery/siop_level
+    chown system radio /sys/class/power_supply/battery/wc_enable
+    chown system radio /sys/class/power_supply/battery/update
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/call
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/video
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/music
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/browser
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/hotspot
+    chown sdcard_rw sdcard_rw /sys/class/power_supply/battery/camera
+    chown system radio /sys/class/power_supply/battery/talk_wcdma
+    chown system radio /sys/class/power_supply/battery/talk_gsm
+    chown system radio /sys/class/power_supply/battery/call
+    chown system radio /sys/class/power_supply/battery/data_call
+    chown system radio /sys/class/power_supply/battery/gps
+    chown system radio /sys/class/power_supply/battery/wifi
+    chown system radio /sys/class/power_supply/battery/lte
+    chown system radio /sys/class/power_supply/battery/lcd
+    chmod 0664 /sys/class/power_supply/battery/charge_otg_control
+    chown media sdcard_rw /sys/class/power_supply/battery/store_mode
+
+    setprop persist.sys.cmdservice.enable disable
+
+    write /sys/block/mmcblk0/queue/scheduler noop
+
+on charger
+    start console
+    start slog
+
+    mount ext4 /dev/block/platform/sdio_emmc/by-name/SYSTEM /system wait ro
+    copy /system/etc/battery_charging_temp.data /sys/class/power_supply/battery/batt_temp_table
+
+    wait /dev/block/platform/sdio_emmc/by-name/efs
+    check_fs /dev/block/platform/sdio_emmc/by-name/efs ext4
+    mount ext4 /dev/block/platform/sdio_emmc/by-name/efs /efs nosuid nodev noatime noauto_da_alloc,discard,journal_async_commit,errors=panic
+
+    chown system radio /efs
+    chmod 0771 /efs
+    mkdir /efs/Battery 0775 radio system
+
+on alarm
+    class_start core
+    start drm
+    start media
+    start console
+
+on property:ro.board_ram_size=min
+    setprop zram.disksize 64
+
+on property:ro.board_ram_size=low
+    setprop zram.disksize 200
+    write /proc/sys/vm/extra_free_kbytes 1024
+    write /sys/module/zram/parameters/total_mem_usage_percent  35
+
+on property:ro.board_ram_size=mid
+    setprop zram.disksize 400
+    write /proc/sys/vm/extra_free_kbytes 2048
+
+on property:ro.board_ram_size=high
+    setprop zram.disksize 600
+    write /proc/sys/vm/extra_free_kbytes 4096
+
+on property:ro.config.zram.support=true
+    write /proc/sys/vm/page-cluster  0
+    start zram
+
+on property:ro.debuggable=1
+    write /sys/kernel/debug/fatal_dump/enable 1
+    chmod 777 /sys/kernel/debug/sc2713-regulator/vddarm/voltage
+    chmod 777 /sys/kernel/debug/sc2713-regulator/vddcore/voltage
+    chmod 777 /sys/kernel/debug/sprd-regulator/vddarm/voltage
+    chmod 777 /sys/kernel/debug/sprd-regulator/vddcore/voltage
+    chmod 755 /sys/kernel/debug
+    write /proc/sys/fs/suid_dumpable 1
+    write /sys/module/smsg/parameters/debug_enable 1
+
+on property:ro.product.name=sp9838aea_auto_slt
+    setprop persist.sys.sprd.mtbf 0
+
+on property:sys.boot_completed=1
+    write /sys/kernel/mm/ksm/run   1
+
+on property:persist.modem.w.enable=1
+    symlink /dev/spipe_w1 /dev/vbpipe1
+    symlink /dev/spipe_w2 /dev/vbpipe2
+    symlink /dev/spipe_w3 /dev/vbpipe3
+    symlink /dev/spipe_w6 /dev/vbpipe6
+    start refnotify_w
+    start cp_diskserver_w
+
+service umount_service /system/bin/umount /preload
+    disabled
+    oneshot
+
+# Support Preload install apks
+on property:persist.sys.storage_preload=1
+    mount ext4 /dev/block/platform/sdio_emmc/by-name/HIDDEN /preload nosuid nodev ro barrier=1
+    setprop storage.preload.complete 1
+
+on property:persist.sys.storage_preload=0
+    start umount_service
+
+# Activate Background Compaction
+on property:sys.sysctl.compact_memory=1
+    setprop sys.sysctl.compact_memory 0
+    start compact_memory
+
+service compact_memory /sbin/bgcompact
+    user root
+    seclabel u:r:sswap:s0
+    oneshot
+    disabled
+
+on property:init.svc.zygote=restarting
+    restart bootchecker
+
+service sdumpstate /system/bin/dumpstate -P
+    class main
+    disabled
+    oneshot
+
+on property:persist.sys.cmdservice.enable=enable
+    start cmd_services
+
+on property:persist.sys.cmdservice.enable=disable
+    stop  cmd_services
+
+on property:sys.boot_completed=1
+    write /sys/block/mmcblk0/queue/scheduler cfq
+
+service mobex-daemon /system/bin/npsmobex
+    class main
+    user system
+    group system radio inet sdcard_r sdcard_rw media_rw shell
+
+service charger /sbin/healthd -c
+    class charger
+    critical
+    seclabel u:r:healthd:s0
